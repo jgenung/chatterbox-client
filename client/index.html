@@ -10,11 +10,30 @@
     <!-- your scripts -->
     <script src="env/config.js"></script>
     <script src="scripts/app.js"></script>
+    <script src="bower_components/underscore/underscore.js"></script>
   </head>
   <body>
+  <script>
+      $(function(){
+        app.init();
+      });
+    </script>
     <div id="main">
       <h1>chatterbox</h1>
-      <!-- Your HTML goes here! -->
+      <div class="spinner"><img src="images/spiffygif_46x46.gif"></div>
+    <div id="rooms">
+      Room:
+      <select id="roomSelect">
+      </select>
+        <input type="submit" name="AllMessages" value ="AllMessages" class="msgSubmit"/>
+
     </div>
+    <form action="#" id="send" method="post">
+      <input type="text" name="message" id="message"/>
+      <input type="submit" name="submit" class="submit"/>
+
+    </form>
+    <div id="chats"></div>
+  </div>
   </body>
 </html>
