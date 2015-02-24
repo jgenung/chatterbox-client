@@ -1,5 +1,5 @@
 
-/*
+/* object outline
 {
   "createdAt":"2013-10-08T00:31:51.501Z",
   "objectId":"eoR0LBTBmJ",
@@ -10,26 +10,21 @@
   }
 */
 
-
 var app = {};
-
 app.roomsObject = {};
-
 app.friends = {};
-
-
 var currentRoom = null;
+var mostRecentObjectID;
 
 app.init = function(){
 
   setInterval(app.fetch, 2000);
   app.addFriend("shawndrost");
 
-  $('.submit').on('click', function(){
+  $('.submit').on('click', function(e){
     app.handleSubmit();
+    //e.preventDefault();
   });
-    //checkAndADD
- //   app.addOptions();
 
  $('.msgSubmit').on('click', function(){
     $('.room').each(function(){
@@ -47,21 +42,20 @@ app.init = function(){
       }
     });
   });
-
 };
 
 app.send = function(message){
+  //alert(JSON.stringify(message));
   $.ajax({
-  // always use this url
   url: 'https://api.parse.com/1/classes/chatterbox',
   type: 'POST',
   data: JSON.stringify(message),
   contentType: 'application/json',
   success: function (data) {
+    //console.log(JSON.stringify(data));
     console.log('chatterbox: Message sent');
   },
   error: function (data) {
-    // see: https://developer.mozilla.org/en-US/docs/Web/API/console.error
     console.error('chatterbox: Failed to send message');
   }
 });
@@ -74,22 +68,19 @@ app.fetch = function(){
     contentType: 'application/json',
     data: { order: '-createdAt'},
     success: function (data) {
-        //console.log(JSON.stringify(data));
-        var lastMessage = data.results[0];
-        if(mostRecentObjectID = ""){
-            mostRecentObjectID = data.results[0].objectID;
-        }
-
-        if(lastMessage.objectID !== mostRecentObjectID){
-          for(var i = 0; i < data.results.length; i++){
-            app.addMessage(data.results[i]);
-            if(!app.roomsObject[data.results[i].roomname] && data.results[i].roomname){
-              app.roomsObject[data.results[i].roomname] = data.results[i].roomname;
-              app.addRoom(data.results[i].roomname);
-            }
-              //app.checkAndADD(data.results[i].roomname);
+      var lastMessage = data.results[0];
+      if(mostRecentObjectID = ""){
+          mostRecentObjectID = data.results[0].objectID;
+      }
+      if(lastMessage.objectID !== mostRecentObjectID){
+        for(var i = 0; i < data.results.length; i++){
+          app.addMessage(data.results[i]);
+          if(!app.roomsObject[data.results[i].roomname] && data.results[i].roomname){
+            app.roomsObject[data.results[i].roomname] = data.results[i].roomname;
+            app.addRoom(data.results[i].roomname);
           }
-          mostRecentObjectID = lastMessage.objectID;
+        }
+        mostRecentObjectID = lastMessage.objectID;
         $('.user').on('click', function(){
           app.addFriend($(this).text());
         });
@@ -117,6 +108,7 @@ app.addMessage = function(message){
   var roomDiv = $('<div></div>').addClass('room').text(roomName);
   var messageDiv = $('<div></div>').addClass('message').text(" Message: " + text);
   listElement.append(nameDiv).append(messageDiv).append(roomDiv);
+
   if (currentRoom && roomName !== currentRoom) {
     listElement.hide();
   }
@@ -126,12 +118,12 @@ app.addMessage = function(message){
   }
 
   $("#chats").append(listElement);
- };
+};
 
 app.addRoom = function(checkRoom){
-    var option = $('<option></option>').text(checkRoom);
-    $('#roomSelect').append(option);
- };
+  var option = $('<option></option>').text(checkRoom);
+  $('#roomSelect').append(option);
+};
 
 app.addFriend = function(friend){
   app.friends[friend] = friend;
@@ -142,12 +134,12 @@ app.addFriend = function(friend){
 };
 
 app.handleSubmit = function(){
-  var text = $('#message').val();
-  var encodedMsg =  encodeURI(text);
-  var username = window.location.search;
-  var roomname = $('#roomSelect').find('option:selected').text();
+  var message = {};
+  message.text = $('#message').val();
+  //var encodedMsg =  encodeURI(text);
+  message.username = window.location.search.substr(10);
+  message.roomname = $('#roomSelect').find('option:selected').text();
   app.send(message);
-  //preventDefault();
 };
 
 
